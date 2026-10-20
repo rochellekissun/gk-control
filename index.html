@@ -1,0 +1,274 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GK CONTROL | Goalkeeper Hub</title>
+<style>
+:root{--bg:#111;--panel:#1c1c1c;--line:#383838;--text:#f5f5f5;--muted:#aaa}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}
+header{padding:24px 20px;border-bottom:1px solid var(--line)}
+header small,.muted{color:var(--muted)}
+h1{margin:6px 0;font-size:30px;letter-spacing:2px}
+h2{font-size:21px}
+h3{font-size:16px}
+main{max-width:1050px;margin:auto;padding:20px}
+nav{display:flex;gap:8px;overflow-x:auto;padding:14px 20px;border-bottom:1px solid var(--line)}
+button,select,input,textarea{font:inherit}
+button{cursor:pointer}
+nav button,.btn{background:#292929;color:white;border:1px solid #444;border-radius:8px;padding:10px 13px;white-space:nowrap}
+nav button.active,.btn.primary{background:#f5f5f5;color:#111}
+nav button:hover,.btn:hover{border-color:#fff}
+.page{display:none}.page.active{display:block}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:12px}
+.stat{font-size:30px;font-weight:bold;margin:8px 0}
+label.task{display:flex;gap:10px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line)}
+input[type=checkbox]{accent-color:#aaa;width:18px;height:18px;flex-shrink:0}
+input:not([type=checkbox]),select,textarea{width:100%;background:#111;color:white;border:1px solid #555;border-radius:7px;padding:11px;margin:6px 0 12px}
+textarea{min-height:90px;resize:vertical}
+label.field{display:block;color:#ccc;font-size:13px;margin-top:10px}
+.bar{height:8px;background:#333;border-radius:8px;overflow:hidden}
+.bar div{height:100%;width:0;background:#eee;transition:width .2s}
+.tag{display:inline-block;background:#303030;border:1px solid #444;border-radius:20px;padding:5px 9px;font-size:12px;color:#ddd}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+footer{padding:24px;color:var(--muted);font-size:12px;text-align:center}
+hr{border:0;border-top:1px solid var(--line);margin:18px 0}
+@media(min-width:700px){main{padding:28px}header{padding-left:max(24px,calc((100% - 1000px)/2))}}
+</style>
+</head>
+<body>
+<header>
+  <small>PERSONAL GOALKEEPER PERFORMANCE CENTRE</small>
+  <h1>GK CONTROL</h1>
+  <div class="muted">DEVELOPMENT · RECOVERY · PERFORMANCE</div>
+</header>
+<nav id="nav">
+  <button class="active" data-page="home">Dashboard</button>
+  <button data-page="week">Weekly Planner</button>
+  <button data-page="sessions">Session Library</button>
+  <button data-page="recovery">Recovery</button>
+  <button data-page="progress">Progress Log</button>
+  <button data-page="trials">NPL Trials</button>
+</nav>
+<main>
+<section id="home" class="page active">
+  <div class="card">
+    <span class="tag">MY PERFORMANCE HUB</span>
+    <h2>Welcome back, Keeper.</h2>
+    <p class="muted">Small improvements. Honest reviews. Consistent development.</p>
+    <label class="field">My current phase
+      <select id="phase">
+        <option>Recovery / awaiting assessment</option>
+        <option>Clinician-approved rehabilitation</option>
+        <option>Return to football progression</option>
+        <option>Full training - cleared</option>
+        <option>Trial preparation - cleared</option>
+      </select>
+    </label>
+  </div>
+  <div class="grid">
+    <div class="card"><div class="muted">DEVELOPMENT TASKS</div><div class="stat" id="taskCount">0/0</div><div class="bar"><div id="taskBar"></div></div></div>
+    <div class="card"><div class="muted">MEDICAL MILESTONES</div><div class="stat" id="medicalCount">0/4</div><div class="muted">Mark only completed milestones.</div></div>
+    <div class="card"><div class="muted">TRIAL PREPARATION</div><div class="stat" id="trialCount">0/7</div><div class="muted">Build readiness step by step.</div></div>
+  </div>
+  <div class="card"><h3>My priorities</h3><ul>
+    <li>Arrange outstanding medical assessments.</li>
+    <li>Review match footage and coach feedback.</li>
+    <li>Record development goals and next steps.</li>
+  </ul><p class="muted">Physical training must match your clinician's restrictions and clearance.</p></div>
+  <div class="card"><h3>Data & backups</h3><p class="muted">Your entries are saved in this browser on this device. Export backups regularly. Clearing browser data can erase your entries.</p>
+    <div class="actions"><button class="btn primary" id="export">Export my backup</button><button class="btn" id="importBtn">Import backup</button><input type="file" id="importFile" accept=".json,application/json" hidden></div>
+  </div>
+</section>
+
+<section id="week" class="page">
+  <h2>Weekly Planner</h2><p class="muted">Plan study, appointments, rest and only activities approved for your current phase.</p>
+  <div id="weekFields"></div>
+  <button class="btn primary" id="saveWeek">Save weekly plan</button>
+</section>
+
+<section id="sessions" class="page">
+  <h2>Solo Session Library</h2>
+  <p class="muted">Choose sessions that fit your current phase. Study sessions are non-physical.</p>
+  <div class="card"><span class="tag">CURRENT PHASE</span><h3>01 — Tour Footage Review</h3><p>Review a short match clip. Note your starting position, decisions, communication and recovery after each action.</p><p><b>Record:</b> one strength, one improvement and one question.</p></div>
+  <div class="card"><span class="tag">CURRENT PHASE</span><h3>02 — Positioning & Decisions</h3><p>Sketch the goal and ball position. Predict the goalkeeper's starting position, the angle to protect and the best decision.</p></div>
+  <div class="card"><span class="tag">CURRENT PHASE</span><h3>03 — Mental Reset</h3><p>Write down how to reset after a mistake, communicate clearly and stay focused on the next action.</p></div>
+  <div class="card"><span class="tag">AFTER SPECIFIC CLEARANCE</span><h3>04 — Handling & Catching</h3><p>Future category: secure handling, high and low balls, and rebound control. Create physical drills only after appropriate clearance.</p></div>
+  <div class="card"><span class="tag">AFTER SPECIFIC CLEARANCE</span><h3>05 — Footwork & Shot-Stopping</h3><p>Future category: set position, movement, diving, landing and recovery. Requires clearance for the relevant movements and impacts.</p></div>
+  <div class="card"><span class="tag">AFTER SPECIFIC CLEARANCE</span><h3>06 — Distribution & Crosses</h3><p>Future category: passing, first touch, goal kicks, aerial decisions and communication. Respect wrist and knee restrictions.</p></div>
+  <div class="card"><span class="tag">AFTER SPECIFIC CLEARANCE</span><h3>07 — Athletic Development</h3><p>Future category: strength, agility, speed and conditioning under an appropriate return-to-play plan.</p></div>
+</section>
+
+<section id="recovery" class="page">
+  <h2>Recovery & Medical Milestones</h2>
+  <div class="card"><p class="muted">Tick a milestone only after it happens. Record medical details privately with your healthcare professional, not in public website files.</p>
+    <div id="medicalTasks"></div>
+  </div>
+  <div class="card"><h3>Questions for my clinician</h3>
+    <textarea id="medicalNotes" placeholder="Safe movements, work restrictions, approved rehab, warning signs, return-to-running criteria, follow-up..."></textarea>
+    <button class="btn primary" id="saveMedical">Save private browser notes</button>
+  </div>
+  <div class="card"><h3>Safety reminder</h3><p>Do not test your knee or wrist with running, jumping, diving, hard gripping or loaded exercises before assessment and appropriate clearance. Seek prompt care if your knee locks, you cannot straighten it or bear weight, or severe symptoms develop.</p></div>
+</section>
+
+<section id="progress" class="page">
+  <h2>Progress Log</h2>
+  <div class="card">
+    <label class="field">Review date<input id="logDate" type="date"></label>
+    <label class="field">Skill or area
+      <select id="logSkill">
+        <option>Starting position & angles</option><option>Handling & rebound control</option><option>Footwork & set position</option><option>Crosses & aerial decisions</option><option>One-on-ones</option><option>Distribution</option><option>Communication</option><option>Mental reset</option><option>Recovery milestone</option>
+      </select>
+    </label>
+    <label class="field">Performance rating (only if observed)<select id="logRating"><option>Not rated</option><option>1 - Needs work</option><option>2 - Developing</option><option>3 - Improving</option><option>4 - Strong</option><option>5 - Consistent strength</option></select></label>
+    <label class="field">Confidence<select id="logConfidence"><option>Not rated</option><option>1 - Low</option><option>2</option><option>3 - Building</option><option>4</option><option>5 - High</option></select></label>
+    <label class="field">What did I notice?<textarea id="logNotes" placeholder="Evidence, strengths, mistakes, coach feedback..."></textarea></label>
+    <label class="field">Next priority<textarea id="logGoal" placeholder="One specific next step"></textarea></label>
+    <button class="btn primary" id="addLog">Save review</button>
+  </div>
+  <h3>Previous reviews</h3><div id="logs"></div>
+</section>
+
+<section id="trials" class="page">
+  <h2>NPL Trial Preparation</h2>
+  <p class="muted">Preparation is more than making saves: decisions, communication, coachability and consistency count too.</p>
+  <div class="card" id="trialTasks"></div>
+  <div class="card"><h3>My goalkeeper profile</h3>
+    <label class="field">Five strengths<textarea id="strengths" placeholder="My strongest qualities as a goalkeeper"></textarea></label>
+    <label class="field">Three areas to improve<textarea id="weaknesses" placeholder="Honest development priorities"></textarea></label>
+    <label class="field">Coach feedback<textarea id="coachFeedback" placeholder="What have coaches told me?"></textarea></label>
+    <label class="field">My next goal<textarea id="trialGoal" placeholder="A realistic next milestone"></textarea></label>
+    <button class="btn primary" id="saveProfile">Save profile</button>
+  </div>
+</section>
+</main>
+<footer>GK CONTROL · Personal development tool · Not a medical diagnosis or clearance system.</footer>
+
+<script>
+const $=id=>document.getElementById(id);
+const defaults={
+ phase:"Recovery / awaiting assessment",
+ tasks:[
+ "Arrange outstanding medical assessments",
+ "Review tour footage and identify lessons",
+ "Choose a technical weakness to study",
+ "Start a weekly performance journal",
+ "Write goalkeeper communication cues",
+ "Create a mental reset routine",
+ "Research trial dates and requirements",
+ "Confirm medical readiness before physical trials"
+ ],
+ medical:[
+ "Knee assessment / imaging completed",
+ "Wrist assessment / imaging completed",
+ "Results reviewed with a clinician",
+ "Specific return-to-football clearance received"
+ ],
+ trial:[
+ "Write five goalkeeper strengths",
+ "List three areas to improve",
+ "Collect useful match footage",
+ "Review communication cues",
+ "Research trial dates and eligibility",
+ "Identify coaches for honest feedback",
+ "Confirm readiness before physical trials"
+ ],
+ week:{},
+ medicalDone:[],trialDone:[],taskDone:[],logs:[],
+ medicalNotes:"",strengths:"",weaknesses:"",coachFeedback:"",trialGoal:""
+};
+let data;
+try{data={...defaults,...JSON.parse(localStorage.getItem("gk-control-data")||"{}")}}catch(e){data={...defaults}}
+function save(){localStorage.setItem("gk-control-data",JSON.stringify(data));renderStats()}
+function checkList(container,items,doneKey){
+ const el=$(container);el.innerHTML="";
+ items.forEach((label,i)=>{
+ const row=document.createElement("label");row.className="task";
+ const cb=document.createElement("input");cb.type="checkbox";cb.checked=data[doneKey].includes(i);
+ cb.addEventListener("change",()=>{data[doneKey]=cb.checked?[...data[doneKey],i]:data[doneKey].filter(x=>x!==i);save()});
+ const span=document.createElement("span");span.textContent=label;
+ row.append(cb,span);el.append(row);
+ });
+}
+function renderStats(){
+ $("taskCount").textContent=data.taskDone.length+"/"+data.tasks.length;
+ $("taskBar").style.width=(100*data.taskDone.length/data.tasks.length)+"%";
+ $("medicalCount").textContent=data.medicalDone.length+"/"+data.medical.length;
+ $("trialCount").textContent=data.trialDone.length+"/"+data.trial.length;
+}
+function renderWeek(){
+ const el=$("weekFields");el.innerHTML="";
+ ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"].forEach(day=>{
+ const label=document.createElement("label");label.className="field";label.textContent=day;
+ const input=document.createElement("input");input.value=data.week[day]||"";
+ input.placeholder="Study, appointments, rest, approved activity...";
+ input.dataset.day=day;label.append(input);el.append(label);
+ });
+}
+function renderLogs(){
+ const el=$("logs");el.innerHTML="";
+ if(!data.logs.length){el.textContent="No reviews saved yet.";return}
+ [...data.logs].reverse().forEach(log=>{
+ const card=document.createElement("div");card.className="card";
+ const h=document.createElement("h3");h.textContent=log.date+" · "+log.skill;
+ const p=document.createElement("p");p.textContent="Rating: "+log.rating+" | Confidence: "+log.confidence;
+ const notes=document.createElement("p");notes.textContent=log.notes||"No observations recorded.";
+ const goal=document.createElement("p");goal.textContent="Next priority: "+(log.goal||"Not set");
+ card.append(h,p,notes,goal);el.append(card);
+ });
+}
+function render(){
+ $("phase").value=data.phase;
+ checkList("medicalTasks",data.medical,"medicalDone");
+ checkList("trialTasks",data.trial,"trialDone");
+ checkList("home",[], "taskDone");
+ renderWeek();renderLogs();renderStats();
+ $("medicalNotes").value=data.medicalNotes;
+ ["strengths","weaknesses","coachFeedback","trialGoal"].forEach(k=>$(k).value=data[k]||"");
+}
+document.querySelectorAll("nav button").forEach(btn=>btn.addEventListener("click",()=>{
+ document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("active",b===btn));
+ document.querySelectorAll(".page").forEach(p=>p.classList.toggle("active",p.id===btn.dataset.page));
+}));
+$("phase").addEventListener("change",e=>{data.phase=e.target.value;save()});
+$("saveWeek").addEventListener("click",()=>{
+ document.querySelectorAll("#weekFields input").forEach(i=>data.week[i.dataset.day]=i.value);save();alert("Weekly plan saved on this device.");
+});
+$("saveMedical").addEventListener("click",()=>{data.medicalNotes=$("medicalNotes").value;save();alert("Notes saved on this device.")});
+$("addLog").addEventListener("click",()=>{
+ data.logs.push({date:$("logDate").value||new Date().toISOString().slice(0,10),skill:$("logSkill").value,rating:$("logRating").value,confidence:$("logConfidence").value,notes:$("logNotes").value,goal:$("logGoal").value});
+ ["logNotes","logGoal"].forEach(k=>$(k).value="");save();renderLogs();alert("Review saved.");
+});
+$("saveProfile").addEventListener("click",()=>{
+ ["strengths","weaknesses","coachFeedback","trialGoal"].forEach(k=>data[k]=$(k).value);save();alert("Profile saved on this device.");
+});
+$("export").addEventListener("click",()=>{
+ const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+ const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="gk-control-backup.json";a.click();URL.revokeObjectURL(url);
+});
+$("importBtn").addEventListener("click",()=>$("importFile").click());
+$("importFile").addEventListener("change",async e=>{
+ try{
+ const imported=JSON.parse(await e.target.files[0].text());
+ if(!imported||!Array.isArray(imported.tasks)||!Array.isArray(imported.logs))throw Error("Invalid backup");
+ data={...defaults,...imported};save();render();alert("Backup imported.");
+ }catch(err){alert("Couldn't import that backup. Please choose a valid GK CONTROL JSON backup.")}e.target.value="";
+});
+/* Task checklist is rendered in its own dashboard card. */
+const taskCard=document.createElement("div");taskCard.className="card";
+const taskHeading=document.createElement("h3");taskHeading.textContent="Development checklist";
+taskCard.append(taskHeading);
+const taskList=document.createElement("div");taskList.id="dashboardTasks";taskCard.append(taskList);
+$("home").insertBefore(taskCard,$("home").children[1]);
+const oldRender=render;
+render=function(){
+ oldRender();
+ checkList("dashboardTasks",data.tasks,"taskDone");
+};
+render();
+</script>
+</body>
+</html>
