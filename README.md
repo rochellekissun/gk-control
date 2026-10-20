@@ -2,4 +2,6 @@
 
 Personal goalkeeper development and performance tracker.
 
-[Open SAINTS PITCH](https://rochellekissun.github.io/gk-control/saints-pitch/)
+[Open the current SAINTS PITCH app](https://rochellekissun.github.io/gk-control/saints-pitch/)
+
+[Review the next SAINTS PITCH build](https://github.com/rochellekissun/gk-control/pull/2)
