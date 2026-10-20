@@ -63,7 +63,8 @@
     if (button) go(button.dataset.page);
   });
   $('#today').textContent = new Intl.DateTimeFormat(undefined, { weekday: 'long', month: 'long', day: 'numeric' }).format(new Date());
-  $('#logDate').value = new Date().toISOString().slice(0, 10);
+  const localDate = (date = new Date()) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+  $('#logDate').value = localDate();
   $('#planDay').value = new Intl.DateTimeFormat(undefined, { weekday: 'long' }).format(new Date());
 
   const toolCards = [
@@ -87,7 +88,7 @@
     $('#dashboardPlan').innerHTML = upcoming.length ? upcoming.map((item) => `<div class="plan-item"><span class="plan-day">${escapeHtml(item.day)}</span><div><strong>${escapeHtml(item.focus)}</strong><p>${escapeHtml(item.minutes)} min${item.notes ? ` · ${escapeHtml(item.notes)}` : ''}</p></div><span class="goal-state">Planned</span></div>`).join('') : '<div class="empty">Nothing planned yet. Add a session to get started.</div>';
   }
   function renderPlan() {
-    const items = [...(data.plans || [])].sort((a, b) => navItems.length + weekdays.indexOf(a.day) - weekdays.indexOf(b.day));
+    const items = [...(data.plans || [])].sort((a, b) => weekdays.indexOf(a.day) - weekdays.indexOf(b.day));
     $('#planList').innerHTML = items.length ? items.map((item) => `<article class="plan-item"><span class="plan-day">${escapeHtml(item.day)}</span><div><strong>${escapeHtml(item.focus)}</strong><p>${escapeHtml(item.minutes)} min${item.notes ? ` · ${escapeHtml(item.notes)}` : ''}</p></div><div class="plan-actions actions"><button class="button small secondary" data-complete-plan="${item.id}" ${item.done ? 'disabled' : ''}>${item.done ? 'Logged' : 'Mark done'}</button><button class="button small secondary" data-remove-plan="${item.id}">Remove</button></div></article>`).join('') : '<div class="empty-state">No sessions planned yet. Add one above.</div>';
   }
   const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
@@ -174,7 +175,7 @@
     const type = $('#mealType').value, budget = $('#mealBudget').value, style = $('#dietStyle').value;
     const avoid = $('#avoidFoods').value.toLowerCase().split(',').map((item) => item.trim()).filter(Boolean);
     let options = meals.filter((meal) => meal.type === type && (style === 'any' || meal.diets.includes(style)) && (budget !== 'low' || meal.cost === 'low'));
-    options = options.filter((meal) => !avoid.some((food) => meal.name.toLowerCase().includes(food) || meal.ingredients.some((ingredient) => ingredient.toLowerCase().includes(food))));
+    options = options.filter((meal) => !avoid.some((food) => meal.name.toLowerCase().includes(food) || meal.ingredients.some((ingredient) => ingredient.toLowerCase().includes(food)) || meal.allergens.some((allergen) => allergen.includes(food) || food.includes(allergen))));
     generatedMeal = options.length ? options[Math.floor(Math.random() * options.length)] : null;
     $('#mealResult').innerHTML = generatedMeal ? `<div class="result"><span class="pill">${escapeHtml(type)}</span><span class="pill">${budget === 'low' ? 'Budget friendly' : 'Flexible'}</span><h3>${escapeHtml(generatedMeal.name)}</h3><p><strong>Ingredients to consider:</strong> ${escapeHtml(generatedMeal.ingredients.join(', '))}</p><p>${escapeHtml(generatedMeal.note)}</p><p class="muted">${style === 'halal' ? 'Halal-friendly idea only; check certification, preparation and every ingredient.' : 'Check every ingredient, label and cross-contact risk. This suggestion cannot guarantee allergy safety.'}</p></div>` : '<div class="result"><h3>No matching idea found</h3><p>Try another preference or avoid list. For allergies, verify ingredients and cross-contact with a qualified professional or food provider.</p></div>';
     $('#saveMeal').hidden = !generatedMeal;
@@ -212,6 +213,16 @@
   });
   $('#exportData').onclick = () => {
     const link = document.createElement('a'); link.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })); link.download = 'saints-pitch-data.json'; link.click(); URL.revokeObjectURL(link.href);
+  };
+  $('#importData').onchange = async (event) => {
+    const file = event.target.files?.[0]; if (!file) return;
+    try {
+      const imported = JSON.parse(await file.text());
+      if (!imported || typeof imported !== 'object' || !Array.isArray(imported.logs) || !Array.isArray(imported.recovery)) throw new Error('That file does not look like a SAINTS PITCH backup.');
+      if (!confirm('Replace the records on this device with this backup? Export your current data first if you need to keep it.')) return;
+      data = { ...emptyData(), ...imported }; saveLocal(); renderProfile(); renderDashboard(); renderPlan(); renderGoals(); renderLogs(); renderRecovery(); showMessage('Backup imported on this device.', 'success');
+    } catch (error) { showMessage(error.message || 'The backup could not be opened.', 'error'); }
+    finally { event.target.value = ''; }
   };
 
   function renderGoals() {
