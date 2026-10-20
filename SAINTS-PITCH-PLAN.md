@@ -1,40 +1,34 @@
-# SAINTS PITCH — build notes
+# SAINTS PITCH — product and build plan
 
-## Current foundation
+## Product direction
 
-`saints-pitch/index.html` is a standalone, computer-first prototype styled with the chosen palette: obsidian `#09090B`, electric purple `#8B5CF6`, and turquoise `#2DD4BF`. It has responsive navigation and local interactions for:
+SAINTS PITCH is a computer-first football development workspace for one person to trial. The visual identity is text-only: SAINTS in electric purple `#8B5CF6`, PITCH in turquoise `#2DD4BF`, on obsidian `#09090B`. No logo, tagline, public launch, or subscription model is planned.
 
-- dashboard and development shortcuts
-- position exploration
-- rule-based training session outlines
-- meal idea suggestions with preference and avoid filters
-- recovery check-ins
-- progress entries and JSON export
-- a basic local profile
+## Current feature scope
 
-The app stores this prototype's profile, logs and check-ins in the browser's `localStorage`. It has no login, password reset, cloud backup, email notifications, or secure multi-account boundary. Browser storage is not encrypted and can be seen by someone with access to the same browser profile. Do not use it for sensitive medical information or as a production athlete record system.
+- Dashboard with weekly activity, role, goals and shortcut cards
+- Weekly session planner for team training, technical work, strength/movement, matches, recovery and rest
+- Rule-based session outlines for goalkeeper, defensive, midfield and attacking positions
+- Position finder based on play preferences
+- Meal ideas with budget, food preferences and avoid-list filters
+- Readiness check-ins for sleep, energy, soreness and pain
+- Progress entries, goals, JSON export, and local clear controls
+- Local-first use plus optional Supabase email account, password reset and manual private cloud backup
 
-## Product decisions carried forward
+## Privacy and data boundaries
 
-- Computer-first, with a usable small-screen layout.
-- The product name is **SAINTS PITCH**. Text only: SAINTS in purple and PITCH in turquoise. No logo or tagline.
-- This is a private personal trial; there is no subscription or public launch in this first slice.
-- Build the full intended scope over stages: private account and recovery, profile, dashboard, training and position generators, nutrition preferences, recovery, saved progress, and eventually email notifications.
-- Training ideas are educational and rule-based, not medical advice. Until movement-based training is cleared, the generator only creates a video, notes and reflection plan.
-- Meal ideas are general suggestions, not guaranteed allergy-safe or clinically tailored. Labels and cross-contact must be checked; medical nutrition needs belong with a qualified clinician or dietitian.
+GitHub Pages serves public static code. It does not provide private server storage, accounts, password reset or scheduled email. Local mode saves records in the browser on this device and is not encrypted. Optional cloud storage uses Supabase Auth and a one-row-per-user table protected by row-level security; `schema.sql` defines the table and owner policies. The browser client must use only the public anon/publishable key. Never expose a service-role key.
 
-## Staged implementation plan
+Cloud backup is manual and restore replaces the local device data after confirmation. Cloud account setup is an explicit user step. Until configured, no sign-in or cloud features are active. Do not store detailed medical information. Training and meal ideas are educational and cannot replace professional advice or guarantee allergy safety.
 
-1. **Foundation (current):** standalone interface, local-only prototype data, navigation and usable generator flows.
-2. **Private account:** choose a backend that supports authentication, password reset and per-user data access; define the data model and privacy rules before moving personal records online.
-3. **Product depth:** expand position-specific training, progress views, schedule planning, and nutrition preference handling; add user controls for export and deletion.
-4. **Notifications:** add email only after account ownership, consent, and notification settings are designed.
-5. **Release:** connect the replacement to the existing `gk-control` repository only after the repo is available and the new version is reviewed. Keep the current GitHub Pages prototype live until then.
+## Current build and remaining work
 
-## Cost and hosting reality
+1. **Workspace foundation:** dashboard, planner, training/position/nutrition flows, recovery, progress and goals.
+2. **Private account:** Supabase sign-up/sign-in/password reset and per-user backup UI plus database policy file. The user must create the project, run the SQL, set the allowed redirect URL, and enter the public URL/key in Account.
+3. **Product depth:** validate meal constraints with the user, add richer training progress views and weekly review, and improve backup conflict handling.
+4. **Notifications:** scheduled email reminders need a server-side scheduler and SMTP. They are not configured by GitHub Pages alone.
+5. **Release:** keep root `index.html` as the original GK CONTROL page; the SAINTS PITCH app lives under `saints-pitch/`.
 
-This prototype can be opened locally without paying for a hosting or backend service. A static site host can publish the interface, but static hosting alone does not provide secure login, password reset, private database records, or outbound email. Those features require backend services. Some providers offer free allowances, but quotas, feature limits and terms vary and can change; free availability should be confirmed against current provider pricing before choosing a stack. A free trial also does not guarantee ongoing availability, backup, or production-grade privacy controls.
+## Free-tier notes
 
-## Repository and live site
-
-This foundation lives on the `saints-pitch-foundation` branch in `rochellekissun/gk-control`, under `saints-pitch/`. The existing root `index.html` and `main` branch are left unchanged. GitHub Pages continues to publish the existing root site from `main`; this branch is not configured as a deployment. Review this isolated version before deciding whether and how to replace the current page.
+Supabase currently lists a $0 Free plan with authentication, database and storage quotas, but free projects pause after one week of inactivity and do not include automatic backups. The default auth email service is best effort and rate-limited. Check [current Supabase pricing](https://supabase.com/pricing) and email limits before depending on the free tier. GitHub Pages only hosts the front end; it does not provide backend services.
